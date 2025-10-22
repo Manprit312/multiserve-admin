@@ -3,15 +3,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Upload,
   X,
   Sparkles,
   Hotel,
-  Building2,
   Loader2,
   ImageIcon,
 } from "lucide-react";
+interface HotelType {
+  _id?: string;
+  name: string;
+  location: string;
+  price: number;
+  capacity: number;
+  description: string;
+  images: string[];
+}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -19,11 +28,13 @@ export default function EditHotelPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [hotel, setHotel] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [hotel, setHotel] = useState<HotelType | null>(null);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
 
   // Fetch hotel details
   useEffect(() => {
@@ -45,10 +56,9 @@ export default function EditHotelPage() {
   }, [id]);
 
   // Handle input change
-  const handleChange = (key: string, value: any) => {
-    setHotel((prev: any) => ({ ...prev, [key]: value }));
+  const handleChange = (key: keyof HotelType, value: string | number) => {
+    setHotel((prev) => (prev ? { ...prev, [key]: value } : prev));
   };
-
   // Handle new image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -58,21 +68,24 @@ export default function EditHotelPage() {
 
   // Remove selected image (existing or new)
   const removeImage = (index: number) => {
-    const removedUrl = previewImages[index];
+    if (!hotel) return;
 
-    // Remove from preview
+    const removedUrl = previewImages[index];
     setPreviewImages(previewImages.filter((_, i) => i !== index));
 
-    // If it's a new image
-    const newFilesFiltered = newImages.filter((file) => URL.createObjectURL(file) !== removedUrl);
+    // Filter newImages properly
+    const newFilesFiltered = newImages.filter(
+      (file) => URL.createObjectURL(file) !== removedUrl
+    );
     setNewImages(newFilesFiltered);
 
-    // If it's an existing image, remove from hotel.images
-    setHotel((prev: any) => ({
-      ...prev,
-      images: prev.images.filter((img: string) => img !== removedUrl),
-    }));
+    // Filter existing images
+    setHotel({
+      ...hotel,
+      images: hotel.images.filter((img) => img !== removedUrl),
+    });
   };
+
 
   // Submit update
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,9 +93,13 @@ export default function EditHotelPage() {
     setSaving(true);
 
     const formData = new FormData();
-    Object.entries(hotel).forEach(([key, val]) => {
-      if (key !== "images") formData.append(key, String(val));
-    });
+  if (!hotel) return;
+
+(Object.entries(hotel) as [keyof HotelType, string | number | string[]][])
+  .forEach(([key, val]) => {
+    if (key !== "images") formData.append(key, String(val));
+  });
+
 
     newImages.forEach((file) => formData.append("images", file));
     formData.append("existingImages", JSON.stringify(hotel.images));
@@ -151,7 +168,7 @@ export default function EditHotelPage() {
             </label>
             <input
               type="text"
-              value={hotel.name}
+              value={hotel?.name}
               onChange={(e) => handleChange("name", e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400 outline-none"
             />
@@ -162,7 +179,7 @@ export default function EditHotelPage() {
             </label>
             <input
               type="text"
-              value={hotel.location}
+              value={hotel?.location}
               onChange={(e) => handleChange("location", e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400 outline-none"
             />
@@ -173,7 +190,7 @@ export default function EditHotelPage() {
             </label>
             <input
               type="number"
-              value={hotel.price}
+              value={hotel?.price}
               onChange={(e) => handleChange("price", e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400 outline-none"
             />
@@ -184,7 +201,7 @@ export default function EditHotelPage() {
             </label>
             <input
               type="number"
-              value={hotel.capacity}
+              value={hotel?.capacity}
               onChange={(e) => handleChange("capacity", e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400 outline-none"
             />
@@ -197,7 +214,7 @@ export default function EditHotelPage() {
             Description
           </label>
           <textarea
-            value={hotel.description}
+            value={hotel?.description}
             onChange={(e) => handleChange("description", e.target.value)}
             className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400 outline-none"
             rows={4}
@@ -233,11 +250,14 @@ export default function EditHotelPage() {
                   transition={{ duration: 0.3 }}
                   className="relative"
                 >
-                  <img
+                  <Image
                     src={img}
                     alt={`Preview ${i}`}
-                    className="w-28 h-28 object-cover rounded-xl border shadow-sm"
+                    width={112}
+                    height={112}
+                    className="object-cover rounded-xl border shadow-sm"
                   />
+
                   <button
                     type="button"
                     onClick={() => removeImage(i)}

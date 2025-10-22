@@ -1,12 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Upload,
   X,
   Sparkles,
   Building2,
-  MapPin,
+
   Home,
   Cloud,
 } from "lucide-react";
@@ -204,7 +205,8 @@ export default function AddHotel() {
                   transition={{ duration: 0.3 }}
                   className="relative"
                 >
-                  <img
+                  <Image
+                  fill
                     src={img}
                     alt="preview"
                     className="w-28 h-28 rounded-xl object-cover border"

@@ -16,9 +16,19 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+interface HotelType {
+  _id: string;
+  name: string;
+  location: string;
+  price: number;
+  capacity?: number;
+  description?: string;
+  images?: string[];
+}
 
 export default function AdminHotels() {
-  const [hotels, setHotels] = useState<any[]>([]);
+const [hotels, setHotels] = useState<HotelType[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const router = useRouter();

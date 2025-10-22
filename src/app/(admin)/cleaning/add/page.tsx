@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Cloud, ImagePlus, XCircle, PlusCircle } from "lucide-react";
-
+import Image from "next/image";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function AddCleaningService() {
@@ -221,7 +221,8 @@ export default function AddCleaningService() {
                     transition={{ duration: 0.3 }}
                     className="relative w-32 h-24 rounded-lg overflow-hidden shadow-md group"
                   >
-                    <img
+                    <Image
+                    fill
                       src={src}
                       alt={`preview-${i}`}
                       className="object-cover w-full h-full"

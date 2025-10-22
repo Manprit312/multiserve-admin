@@ -14,11 +14,19 @@ import {
   XCircle,
   Save,
 } from "lucide-react";
+interface CleaningBanner {
+  _id?: string;
+  title: string;
+  subtitle?: string;
+  image: string;
+}
+
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function AdminCleaningBanner() {
-  const [banner, setBanner] = useState<any | null>(null);
+const [banner, setBanner] = useState<CleaningBanner | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({

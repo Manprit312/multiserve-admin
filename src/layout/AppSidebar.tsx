@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Sparkles, Orbit, Rocket, BrushCleaning } from "lucide-react"; // Add this at the top
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
+
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
@@ -220,7 +220,9 @@ const AppSidebar: React.FC = () => {
                     </button>
                     {(isExpanded || isHovered || isMobileOpen) && (
                       <div
-                        ref={(el) => (subMenuRefs.current[`submenu-${index}`] = el)}
+                       ref={(el) => {
+  subMenuRefs.current[`submenu-${index}`] = el;
+}}
                         className="overflow-hidden transition-all duration-300"
                         style={{
                           height:
