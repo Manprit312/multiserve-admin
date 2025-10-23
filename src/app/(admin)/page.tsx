@@ -1,41 +1,39 @@
-import type { Metadata } from "next";
-import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
+"use client";
 import React from "react";
-import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
-import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "@/components/ecommerce/StatisticsChart";
-import RecentOrders from "@/components/ecommerce/RecentOrders";
-import DemographicCard from "@/components/ecommerce/DemographicCard";
+import ServiceMetrics from "./components/ServiceMetrics";
+import MonthlyBookingsChart from "./components/MonthlyBookingsChart";
+import RevenueTarget from "./components/RevenueTarget";
+import GrowthStatisticsChart from "./components/GrowthStatisticsChart";
+import CategoryDistributionChart from "./components/CategoryDistributionChart";
+import RecentBookings from "./components/RecentBookings";
 
-export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
-};
-
-export default function Ecommerce() {
+export default function AdminDashboard() {
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
+    <div className="grid grid-cols-12 gap-4 md:gap-6 mt-10">
+      {/* Metrics Cards */}
       <div className="col-span-12 space-y-6 xl:col-span-7">
-        <EcommerceMetrics />
-
-        <MonthlySalesChart />
+        <ServiceMetrics />
+        <MonthlyBookingsChart />
       </div>
 
+      {/* Target / Progress */}
       <div className="col-span-12 xl:col-span-5">
-        <MonthlyTarget />
+        <RevenueTarget />
       </div>
 
+      {/* Growth chart */}
       <div className="col-span-12">
-        <StatisticsChart />
+        <GrowthStatisticsChart />
       </div>
 
+      {/* Category Split */}
       <div className="col-span-12 xl:col-span-5">
-        <DemographicCard />
+        <CategoryDistributionChart />
       </div>
 
+      {/* Recent Bookings */}
       <div className="col-span-12 xl:col-span-7">
-        <RecentOrders />
+        <RecentBookings />
       </div>
     </div>
   );

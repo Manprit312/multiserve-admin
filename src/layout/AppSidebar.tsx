@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Sparkles, Orbit, Rocket, BrushCleaning } from "lucide-react"; // Add this at the top
+import { Sparkles, Orbit, Rocket, BrushCleaning, Phone } from "lucide-react"; // Add this at the top
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 
@@ -30,7 +30,11 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/admin/dashboard",
+    subItems: [
+      { name: "Dashboard", path: "/" },
+      { name: "Home Banner", path: "/dashboard/homebanner" },
+
+    ],
   },
   {
     icon: <Hotel />,
@@ -40,11 +44,17 @@ const navItems: NavItem[] = [
       { name: "Add Hotel", path: "/hotel/add" },
     ],
   },
+   {
+    icon: <Phone />,
+    name: "Inquiries",
+ path:"/inquiries"
+  },
+
   {
     icon: <BrushCleaning />,
     name: "Cleaning",
     subItems: [
-       { name: "Cleaning HomeBanner", path: "/cleaning/banner" },
+      { name: "Cleaning HomeBanner", path: "/cleaning/banner" },
       { name: "All Services", path: "/cleaning" },
       { name: "Add Service", path: "/cleaning/add" },
     ],
@@ -220,9 +230,9 @@ const AppSidebar: React.FC = () => {
                     </button>
                     {(isExpanded || isHovered || isMobileOpen) && (
                       <div
-                       ref={(el) => {
-  subMenuRefs.current[`submenu-${index}`] = el;
-}}
+                        ref={(el) => {
+                          subMenuRefs.current[`submenu-${index}`] = el;
+                        }}
                         className="overflow-hidden transition-all duration-300"
                         style={{
                           height:
