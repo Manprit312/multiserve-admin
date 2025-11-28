@@ -156,7 +156,7 @@ const [hotels, setHotels] = useState<HotelType[]>([]);
                           whileHover={{ scale: 1.08 }}
                           className="w-16 h-16 rounded-lg overflow-hidden shadow-sm border border-sky-100 bg-sky-50 flex items-center justify-center"
                         >
-                          {hotel.images?.[0] ? (
+                          {hotel.images?.[0] && hotel.images[0].includes('cloudinary.com') ? (
                             <Image
                               src={hotel.images[0]}
                               alt={hotel.name}

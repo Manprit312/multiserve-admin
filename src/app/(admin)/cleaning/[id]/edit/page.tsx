@@ -20,7 +20,13 @@ type CleaningService = {
   price: number;
   duration: number;
   images: string[];
+  provider?: string | { _id: string; name: string };
 };
+
+interface Provider {
+  _id: string;
+  name: string;
+}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -38,6 +44,26 @@ export default function EditCleaningServicePage(): JSX.Element {
   const [saving, setSaving] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+
+  // Fetch providers
+  useEffect(() => {
+    async function fetchProviders() {
+      try {
+        const res = await fetch(`${API_BASE}/api/providers?isActive=true`);
+        const data = await res.json();
+        if (data.success) {
+          setProviders(data.providers);
+        }
+      } catch (err) {
+        console.error("Failed to fetch providers:", err);
+      } finally {
+        setLoadingProviders(false);
+      }
+    }
+    fetchProviders();
+  }, []);
 
   // Fetch existing service
   useEffect(() => {
@@ -46,7 +72,13 @@ export default function EditCleaningServicePage(): JSX.Element {
         const res = await fetch(`${API_BASE}/api/cleaning/${id}`);
         const data = await res.json();
         if (data.success && data.cleaning) {
-          setService(data.cleaning);
+          const cleaningData = data.cleaning;
+          setService({
+            ...cleaningData,
+            provider: typeof cleaningData.provider === 'object' 
+              ? cleaningData.provider._id 
+              : cleaningData.provider || '',
+          });
         }
       } catch (err) {
         console.error("Error fetching service:", err);
@@ -102,6 +134,9 @@ export default function EditCleaningServicePage(): JSX.Element {
       formData.append("description", service.description);
       formData.append("price", String(service.price));
       formData.append("duration", String(service.duration));
+      if (service.provider) {
+        formData.append("provider", String(service.provider));
+      }
 
       // ✅ Correct key names for backend
       formData.append("existingImages", JSON.stringify(service.images));
@@ -227,6 +262,32 @@ export default function EditCleaningServicePage(): JSX.Element {
                 className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-300 outline-none"
               />
             </div>
+          </div>
+
+          {/* Provider Selection */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Service Provider
+            </label>
+            {loadingProviders ? (
+              <div className="w-full border rounded-lg px-4 py-2 bg-gray-50 text-gray-500">
+                Loading providers...
+              </div>
+            ) : (
+              <select
+                name="provider"
+                value={typeof service.provider === 'string' ? service.provider : ''}
+                onChange={(e) => setService({ ...service, provider: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-300 outline-none"
+              >
+                <option value="">Select a provider</option>
+                {providers.map((provider) => (
+                  <option key={provider._id} value={provider._id}>
+                    {provider.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Existing Images */}

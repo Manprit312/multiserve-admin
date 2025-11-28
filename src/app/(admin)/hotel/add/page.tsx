@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -7,10 +7,16 @@ import {
   X,
   Sparkles,
   Building2,
-
   Home,
   Cloud,
 } from "lucide-react";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+interface Provider {
+  _id: string;
+  name: string;
+}
 
 export default function AddHotel() {
   const [hotel, setHotel] = useState({
@@ -21,10 +27,30 @@ export default function AddHotel() {
     outsideFoodAllowed: false,
     description: "",
     amenities: "",
+    provider: "",
   });
   const [images, setImages] = useState<File[]>([]);
   const [preview, setPreview] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+
+  useEffect(() => {
+    async function fetchProviders() {
+      try {
+        const res = await fetch(`${API_BASE}/api/providers?isActive=true`);
+        const data = await res.json();
+        if (data.success) {
+          setProviders(data.providers);
+        }
+      } catch (err) {
+        console.error("Failed to fetch providers:", err);
+      } finally {
+        setLoadingProviders(false);
+      }
+    }
+    fetchProviders();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -39,14 +65,20 @@ export default function AddHotel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hotel.provider) {
+      alert("Please select a provider!");
+      return;
+    }
     setLoading(true);
     const formData = new FormData();
-    Object.entries(hotel).forEach(([key, val]) =>
-      formData.append(key, String(val))
-    );
+    Object.entries(hotel).forEach(([key, val]) => {
+      if (val !== "" && val !== null && val !== undefined) {
+        formData.append(key, String(val));
+      }
+    });
     images.forEach((file) => formData.append("images", file));
 
-    const res = await fetch("http://localhost:5000/api/hotels/add", {
+    const res = await fetch(`${API_BASE}/api/hotels/add`, {
       method: "POST",
       body: formData,
     });
@@ -63,6 +95,7 @@ export default function AddHotel() {
         outsideFoodAllowed: false,
         description: "",
         amenities: "",
+        provider: "",
       });
       setImages([]);
       setPreview([]);
@@ -183,6 +216,32 @@ export default function AddHotel() {
               setHotel({ ...hotel, amenities: e.target.value })
             }
           />
+
+          {/* Provider Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Service Provider *
+            </label>
+            {loadingProviders ? (
+              <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 text-gray-500">
+                Loading providers...
+              </div>
+            ) : (
+              <select
+                value={hotel.provider}
+                onChange={(e) => setHotel({ ...hotel, provider: e.target.value })}
+                className="border border-gray-200 rounded-xl p-4 w-full focus:ring-2 focus:ring-sky-400 transition"
+                required
+              >
+                <option value="">Select a provider</option>
+                {providers.map((provider) => (
+                  <option key={provider._id} value={provider._id}>
+                    {provider.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
           {/* Image Upload */}
           <div className="border border-gray-200 rounded-xl p-6 bg-gradient-to-r from-sky-50 to-blue-50">

@@ -6,9 +6,76 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    fname: "",
+    lname: "",
+    email: "",
+    password: "",
+    // Provider info
+    providerName: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    description: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isChecked) {
+      alert("Please agree to Terms and Conditions");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: `${formData.fname} ${formData.lname}`,
+          email: formData.email,
+          password: formData.password,
+          // Provider info
+          providerName: formData.providerName || `${formData.fname} ${formData.lname}`,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          description: formData.description,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success || response.ok) {
+        alert("Account created successfully! You can now sign in.");
+        window.location.href = "/signin";
+      } else {
+        alert(data.message || "Sign up failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Sign up error:", error);
+      alert("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -24,10 +91,10 @@ export default function SignUpForm() {
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Sign Up
+              Provider Sign Up
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              Create your provider account to manage services
             </p>
           </div>
           <div>
@@ -83,7 +150,7 @@ export default function SignUpForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
@@ -95,7 +162,10 @@ export default function SignUpForm() {
                       type="text"
                       id="fname"
                       name="fname"
+                      value={formData.fname}
+                      onChange={handleChange}
                       placeholder="Enter your first name"
+                      required
                     />
                   </div>
                   {/* <!-- Last Name --> */}
@@ -107,7 +177,10 @@ export default function SignUpForm() {
                       type="text"
                       id="lname"
                       name="lname"
+                      value={formData.lname}
+                      onChange={handleChange}
                       placeholder="Enter your last name"
+                      required
                     />
                   </div>
                 </div>
@@ -120,7 +193,10 @@ export default function SignUpForm() {
                     type="email"
                     id="email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder="Enter your email"
+                    required
                   />
                 </div>
                 {/* <!-- Password --> */}
@@ -130,8 +206,12 @@ export default function SignUpForm() {
                   </Label>
                   <div className="relative">
                     <Input
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
+                      required
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -143,6 +223,102 @@ export default function SignUpForm() {
                         <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
                       )}
                     </span>
+                  </div>
+                </div>
+
+                {/* Provider Information Section */}
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                    Provider Information
+                  </h3>
+                  
+                  <div>
+                    <Label>
+                      Provider/Business Name<span className="text-error-500">*</span>
+                    </Label>
+                    <Input
+                      type="text"
+                      id="providerName"
+                      name="providerName"
+                      value={formData.providerName}
+                      onChange={handleChange}
+                      placeholder="Enter your business name"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 mt-5">
+                    <div>
+                      <Label>Phone</Label>
+                      <Input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+91 98765 43210"
+                      />
+                    </div>
+                    <div>
+                      <Label>City</Label>
+                      <Input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        placeholder="Mumbai"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 mt-5">
+                    <div>
+                      <Label>State</Label>
+                      <Input
+                        type="text"
+                        id="state"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleChange}
+                        placeholder="Maharashtra"
+                      />
+                    </div>
+                    <div>
+                      <Label>Pincode</Label>
+                      <Input
+                        type="text"
+                        id="pincode"
+                        name="pincode"
+                        value={formData.pincode}
+                        onChange={handleChange}
+                        placeholder="400001"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-5">
+                    <Label>Address</Label>
+                    <Input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      placeholder="Street address"
+                    />
+                  </div>
+
+                  <div className="mt-5">
+                    <Label>Description</Label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Describe your services..."
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none dark:bg-gray-800 dark:border-gray-700"
+                      rows={3}
+                    />
                   </div>
                 </div>
                 {/* <!-- Checkbox --> */}
@@ -165,8 +341,12 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                    Sign Up
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? "Creating Account..." : "Sign Up"}
                   </button>
                 </div>
               </div>

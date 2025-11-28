@@ -188,13 +188,19 @@ export default function AdminServicesPage(): JSX.Element {
 
                       <td className="px-4 py-4">
                         <div className="w-24 h-14 rounded-lg overflow-hidden bg-gray-100 relative">
-                          <Image
-                            src={s.images?.[0] || "/default-service.jpg"}
-                            alt={s.name}
-                            fill
-                            sizes="96px"
-                            className="object-cover"
-                          />
+                          {s.images?.[0] && s.images[0].includes('cloudinary.com') ? (
+                            <Image
+                              src={s.images[0]}
+                              alt={s.name}
+                              fill
+                              sizes="96px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                              <ImageIcon className="text-gray-400" size={20} />
+                            </div>
+                          )}
                         </div>
                       </td>
 

@@ -1,23 +1,58 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Sparkles, Cloud, ImagePlus, XCircle, PlusCircle } from "lucide-react";
 import Image from "next/image";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+interface Provider {
+  _id: string;
+  name: string;
+}
+
 export default function AddCleaningService() {
+  const searchParams = useSearchParams();
+  const providerParam = searchParams?.get("provider");
+
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
     duration: "",
     category: "",
+    provider: providerParam || "",
     active: true,
   });
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+
+  useEffect(() => {
+    async function fetchProviders() {
+      try {
+        const res = await fetch(`${API_BASE}/api/providers?isActive=true`);
+        const data = await res.json();
+        if (data.success) {
+          setProviders(data.providers);
+        }
+      } catch (err) {
+        console.error("Failed to fetch providers:", err);
+      } finally {
+        setLoadingProviders(false);
+      }
+    }
+    fetchProviders();
+  }, []);
+
+  useEffect(() => {
+    if (providerParam) {
+      setForm((prev) => ({ ...prev, provider: providerParam }));
+    }
+  }, [providerParam]);
 
   // handle image upload
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,16 +71,18 @@ export default function AddCleaningService() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.name || !form.price || images.length === 0) {
-      alert("Please fill all required fields and upload at least one image!");
+    if (!form.name || !form.price || images.length === 0 || !form.provider) {
+      alert("Please fill all required fields (including provider) and upload at least one image!");
       return;
     }
 
     setLoading(true);
     const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) =>
-      formData.append(key, value.toString())
-    );
+    Object.entries(form).forEach(([key, value]) => {
+      if (value) {
+        formData.append(key, value.toString());
+      }
+    });
     images.forEach((img) => formData.append("images", img));
 
     try {
@@ -63,6 +100,7 @@ export default function AddCleaningService() {
           price: "",
           duration: "",
           category: "",
+          provider: "",
           active: true,
         });
         setImages([]);
@@ -170,6 +208,32 @@ export default function AddCleaningService() {
             />
           </div>
 
+          {/* Provider Selection */}
+          <div>
+            <label className="block text-slate-700 font-medium mb-2">
+              Service Provider *
+            </label>
+            {loadingProviders ? (
+              <div className="w-full border rounded-lg px-4 py-2 bg-gray-50 text-gray-500">
+                Loading providers...
+              </div>
+            ) : (
+              <select
+                value={form.provider}
+                onChange={(e) => setForm({ ...form, provider: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-400 outline-none"
+                required
+              >
+                <option value="">Select a provider</option>
+                {providers.map((provider) => (
+                  <option key={provider._id} value={provider._id}>
+                    {provider.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
           {/* Description */}
           <div className="md:col-span-2">
             <label className="block text-slate-700 font-medium mb-2">
@@ -259,5 +323,13 @@ export default function AddCleaningService() {
         </div>
       </motion.form>
     </main>
+  );
+}
+
+export default function AddCleaningService() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+      <AddCleaningServiceContent />
+    </Suspense>
   );
 }
