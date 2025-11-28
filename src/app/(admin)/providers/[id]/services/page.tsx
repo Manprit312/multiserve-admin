@@ -8,7 +8,7 @@ import {
   Search,
   Loader2,
   Trash2,
-  Edit3,
+
   PlusCircle,
   ArrowLeft,
   Sparkles,
@@ -49,6 +49,7 @@ export default function ProviderServicesPage(): JSX.Element {
       fetchProvider();
       fetchServices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function fetchProvider() {
@@ -59,7 +60,9 @@ export default function ProviderServicesPage(): JSX.Element {
         setProvider(data.provider);
       }
     } catch (err) {
-      console.error("Failed to fetch provider:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to fetch provider:", err);
+      }
     }
   }
 
@@ -74,7 +77,9 @@ export default function ProviderServicesPage(): JSX.Element {
         setServices([]);
       }
     } catch (err) {
-      console.error("Failed to fetch services:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to fetch services:", err);
+      }
       setServices([]);
     } finally {
       setLoading(false);
@@ -94,7 +99,9 @@ export default function ProviderServicesPage(): JSX.Element {
         alert("Delete failed");
       }
     } catch (err) {
-      console.error(err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Delete service error:", err);
+      }
       alert("Network error");
     } finally {
       setProcessingId(null);
@@ -198,7 +205,7 @@ export default function ProviderServicesPage(): JSX.Element {
                 transition={{ delay: i * 0.05 }}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all"
               >
-                {service.images && service.images.length > 0 && service.images[0].includes('cloudinary.com') && (
+                {service.images && service.images.length > 0 && typeof service.images[0] === 'string' && service.images[0].includes('cloudinary.com') && (
                   <div className="relative h-48">
                     <Image
                       src={service.images[0]}

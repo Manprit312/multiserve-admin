@@ -83,7 +83,9 @@ export default function AddProvider() {
         alert("Error adding provider!");
       }
     } catch (err) {
-      console.error("Failed to add provider:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to add provider:", err);
+      }
     } finally {
       setLoading(false);
     }

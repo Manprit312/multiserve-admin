@@ -44,7 +44,9 @@ export default function AddHotel() {
           setProviders(data.providers);
         }
       } catch (err) {
-        console.error("Failed to fetch providers:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to fetch providers:", err);
+        }
       } finally {
         setLoadingProviders(false);
       }

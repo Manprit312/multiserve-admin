@@ -57,7 +57,9 @@ export default function EditCleaningServicePage(): JSX.Element {
           setProviders(data.providers);
         }
       } catch (err) {
-        console.error("Failed to fetch providers:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to fetch providers:", err);
+        }
       } finally {
         setLoadingProviders(false);
       }
@@ -81,7 +83,9 @@ export default function EditCleaningServicePage(): JSX.Element {
           });
         }
       } catch (err) {
-        console.error("Error fetching service:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching service:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -156,7 +160,9 @@ export default function EditCleaningServicePage(): JSX.Element {
         alert("Failed to update service ❌");
       }
     } catch (err) {
-      console.error(err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Save error:", err);
+      }
       alert("Network error while saving");
     } finally {
       setSaving(false);

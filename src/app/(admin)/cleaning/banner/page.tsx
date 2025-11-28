@@ -52,7 +52,9 @@ const [banner, setBanner] = useState<CleaningBanner | null>(null);
         setBanner(null);
       }
     } catch (err) {
-      console.error("Failed to fetch banner:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to fetch banner:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -92,7 +94,9 @@ const [banner, setBanner] = useState<CleaningBanner | null>(null);
       setForm({ title: "", subtitle: "", image: null });
       fetchBanner();
     } catch (err) {
-      console.error("Failed to save banner:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to save banner:", err);
+      }
     }
   };
 
@@ -105,7 +109,9 @@ const [banner, setBanner] = useState<CleaningBanner | null>(null);
       });
       setBanner(null);
     } catch (err) {
-      console.error("Failed to delete banner:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to delete banner:", err);
+      }
     }
   };
 

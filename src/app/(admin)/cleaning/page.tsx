@@ -51,7 +51,9 @@ export default function AdminServicesPage(): JSX.Element {
         setServices([]);
       }
     } catch (err) {
-      console.error("Failed to fetch services:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to fetch services:", err);
+      }
       setServices([]);
     } finally {
       setLoading(false);
@@ -69,11 +71,15 @@ export default function AdminServicesPage(): JSX.Element {
         setServices((prev) => prev.filter((s) => s._id !== id));
       } else {
         const err = await res.text();
-        console.error("Delete failed:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Delete failed:", err);
+        }
         alert("Delete failed");
       }
     } catch (err) {
-      console.error(err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Delete error:", err);
+      }
       alert("Network error");
     } finally {
       setProcessingId(null);
@@ -188,7 +194,7 @@ export default function AdminServicesPage(): JSX.Element {
 
                       <td className="px-4 py-4">
                         <div className="w-24 h-14 rounded-lg overflow-hidden bg-gray-100 relative">
-                          {s.images?.[0] && s.images[0].includes('cloudinary.com') ? (
+                          {s.images?.[0] && typeof s.images[0] === 'string' && s.images[0].includes('cloudinary.com') ? (
                             <Image
                               src={s.images[0]}
                               alt={s.name}

@@ -54,7 +54,9 @@ export default function ProvidersPage(): JSX.Element {
         setProviders([]);
       }
     } catch (err) {
-      console.error("Failed to fetch providers:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to fetch providers:", err);
+      }
       setProviders([]);
     } finally {
       setLoading(false);
@@ -72,11 +74,15 @@ export default function ProvidersPage(): JSX.Element {
         setProviders((prev) => prev.filter((p) => p._id !== id));
       } else {
         const err = await res.text();
-        console.error("Delete failed:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Delete failed:", err);
+        }
         alert("Delete failed");
       }
     } catch (err) {
-      console.error(err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Delete error:", err);
+      }
       alert("Network error");
     } finally {
       setProcessingId(null);

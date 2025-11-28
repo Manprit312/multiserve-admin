@@ -44,7 +44,9 @@ const [hotels, setHotels] = useState<HotelType[]>([]);
       const data = await res.json();
       if (data.success) setHotels(data.hotels);
     } catch (err) {
-      console.error("Failed to fetch hotels:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to fetch hotels:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,9 @@ const [hotels, setHotels] = useState<HotelType[]>([]);
       await fetch(`${API_BASE}/api/hotels/${id}`, { method: "DELETE" });
       setHotels((prev) => prev.filter((h) => h._id !== id));
     } catch (err) {
-      console.error("Failed to delete:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to delete:", err);
+      }
     }
   };
 
@@ -156,7 +160,7 @@ const [hotels, setHotels] = useState<HotelType[]>([]);
                           whileHover={{ scale: 1.08 }}
                           className="w-16 h-16 rounded-lg overflow-hidden shadow-sm border border-sky-100 bg-sky-50 flex items-center justify-center"
                         >
-                          {hotel.images?.[0] && hotel.images[0].includes('cloudinary.com') ? (
+                          {hotel.images?.[0] && typeof hotel.images[0] === 'string' && hotel.images[0].includes('cloudinary.com') ? (
                             <Image
                               src={hotel.images[0]}
                               alt={hotel.name}

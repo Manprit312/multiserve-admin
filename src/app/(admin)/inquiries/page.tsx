@@ -31,7 +31,9 @@ const [contacts, setContacts] = useState<Contact[]>([]);
         const data = await res.json();
         if (data.success) setContacts(data.contacts);
       } catch (err) {
-        console.error("Error loading contacts:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error loading contacts:", err);
+        }
       } finally {
         setLoading(false);
       }

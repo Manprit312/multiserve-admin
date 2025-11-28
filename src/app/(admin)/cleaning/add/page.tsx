@@ -12,7 +12,7 @@ interface Provider {
   name: string;
 }
 
-export default function AddCleaningService() {
+const  AddCleaningServices =()=> {
   const searchParams = useSearchParams();
   const providerParam = searchParams?.get("provider");
 
@@ -40,7 +40,9 @@ export default function AddCleaningService() {
           setProviders(data.providers);
         }
       } catch (err) {
-        console.error("Failed to fetch providers:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to fetch providers:", err);
+        }
       } finally {
         setLoadingProviders(false);
       }
@@ -109,7 +111,9 @@ export default function AddCleaningService() {
         alert("Error adding service!");
       }
     } catch (err) {
-      console.error("Failed to add service:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to add service:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -329,7 +333,7 @@ export default function AddCleaningService() {
 export default function AddCleaningService() {
   return (
     <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
-      <AddCleaningServiceContent />
+      <AddCleaningServices />
     </Suspense>
   );
 }

@@ -47,7 +47,9 @@ export default function EditHotelPage() {
           setPreviewImages(data.hotel.images || []);
         }
       } catch (err) {
-        console.error("Failed to fetch hotel:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to fetch hotel:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -118,7 +120,9 @@ export default function EditHotelPage() {
         alert("❌ Update failed!");
       }
     } catch (err) {
-      console.error("Error updating:", err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error updating:", err);
+      }
     } finally {
       setSaving(false);
     }

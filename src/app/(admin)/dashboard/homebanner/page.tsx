@@ -34,7 +34,9 @@ export default function HomeBannerPage() {
           setBanner(null);
         }
       } catch (err) {
-        console.error("Error loading banner:", err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error loading banner:", err);
+        }
       } finally {
         setLoading(false);
       }
